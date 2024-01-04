@@ -43,12 +43,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .sessionManagement(c->c.sessionCreationPolicy(STATELESS))
+                .sessionManagement(c-> c.sessionCreationPolicy(STATELESS))
                 .addFilterAt(new XpressUsernamePasswordAuthenticationFilter(authenticationManager(), jwtService),
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthorizationFilter(jwtService), XpressUsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(c->c.requestMatchers("/login").permitAll())
-                .authorizeHttpRequests(c->c.anyRequest().authenticated())
+                .authorizeHttpRequests(c -> c.requestMatchers("/login").permitAll())
+                .authorizeHttpRequests(c -> c.anyRequest().authenticated())
                 .build();
     }
 }

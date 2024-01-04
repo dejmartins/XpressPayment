@@ -28,6 +28,7 @@ public class XpressJwtService implements JwtService{
                 .withClaim("username", username)
                 .withExpiresAt(LocalDateTime.now().plusDays(jwtConfig.getJwtDuration())
                         .toInstant(UTC))
+                .withIssuer("xpress")
                 .sign(HMAC512(jwtConfig.getJwtSecret().getBytes()));
     }
 
@@ -36,6 +37,7 @@ public class XpressJwtService implements JwtService{
         Algorithm algorithm = HMAC512(jwtConfig.getJwtSecret().getBytes());
         DecodedJWT decodedJWT = JWT.require(algorithm)
                 .build().verify(token);
+
         return isValidToken(decodedJWT);
     }
 
@@ -49,15 +51,10 @@ public class XpressJwtService implements JwtService{
     }
 
     private static boolean isValidToken(DecodedJWT decodedJWT) {
-        return isTokenNotExpired(decodedJWT) && isTokenWithValidIssuer(decodedJWT);
-    }
-
-
-    private static boolean isTokenWithValidIssuer(DecodedJWT decodedJWT) {
-        return decodedJWT.getIssuer().equals("xpress");
+        return isTokenNotExpired(decodedJWT);
     }
 
     private static boolean isTokenNotExpired(DecodedJWT decodedJWT) {
-        return Instant.now().isAfter(decodedJWT.getExpiresAtAsInstant());
+        return Instant.now().isBefore(decodedJWT.getExpiresAtAsInstant());
     }
 }

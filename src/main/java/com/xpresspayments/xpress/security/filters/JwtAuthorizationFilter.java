@@ -32,7 +32,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         } else {
             authorizeRequest(request, response, filterChain);
         }
-
     }
 
     private void authorizeRequest(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -48,7 +47,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private void authorize(String authHeader) {
         String token = extractTokenFrom(authHeader);
         boolean isValidToken = jwtService.validate(token);
-
         if (isValidToken) {
             addUserCredentialsToContext(token);
         }
