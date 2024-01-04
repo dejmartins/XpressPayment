@@ -54,7 +54,7 @@ public class XpressJwtService implements JwtService{
 
 
     private static boolean isTokenWithValidIssuer(DecodedJWT decodedJWT) {
-        return decodedJWT.getIssuer().equals("sync");
+        return decodedJWT.getIssuer().equals("xpress");
     }
 
     private static boolean isTokenNotExpired(DecodedJWT decodedJWT) {
