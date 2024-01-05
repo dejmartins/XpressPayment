@@ -3,6 +3,7 @@ package com.xpresspayments.xpress.services;
 import com.squareup.okhttp.*;
 import com.xpresspayments.xpress.dtos.requests.PurchaseAirtimeRequest;
 import com.xpresspayments.xpress.dtos.responses.PurchaseAirtimeResponse;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -45,12 +46,20 @@ public class XpressAirtimeService implements AirtimeService {
 
         String responseBody = response.body().string();
 
+//      Create a JSON object from the response body.
+        JSONObject jsonObject= new JSONObject(responseBody);
+
         if (!response.isSuccessful()) {
-            throw new IOException(responseBody);
+//          Throw an IOException with the error message from the response.
+            throw new IOException(jsonObject.getString("responseMessage"));
         }
 
         return PurchaseAirtimeResponse.builder()
-                .data(responseBody)
+                .referenceId(jsonObject.getString("referenceId"))
+                .requestId(jsonObject.getString("requestId"))
+                .responseCode(jsonObject.getString("responseCode"))
+                .responseMessage(jsonObject.getString("responseMessage"))
+                .data(jsonObject.getString("data"))
                 .build();
     }
 
