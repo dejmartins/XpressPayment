@@ -28,7 +28,6 @@ public class XpressAirtimeService implements AirtimeService {
     public PurchaseAirtimeResponse purchaseAirtime(PurchaseAirtimeRequest purchaseAirtimeRequest) throws IOException {
         validatePurchaseRequest(purchaseAirtimeRequest);
 
-
         OkHttpClient client = new OkHttpClient();
 
         MediaType mediaType = MediaType.parse("application/json");
