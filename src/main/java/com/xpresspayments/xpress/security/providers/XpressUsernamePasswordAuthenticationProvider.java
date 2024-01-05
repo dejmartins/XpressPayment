@@ -1,8 +1,8 @@
 package com.xpresspayments.xpress.security.providers;
 
+import com.xpresspayments.xpress.exceptions.loginException.InvalidLoginDetailsException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -24,7 +24,7 @@ public class XpressUsernamePasswordAuthenticationProvider implements Authenticat
         if (isValidPasswordMatch)
             return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(),
                     userDetails.getAuthorities());
-        throw new BadCredentialsException("incorrect username or password supplied");
+        throw new InvalidLoginDetailsException("Invalid Login Details");
     }
 
     @Override

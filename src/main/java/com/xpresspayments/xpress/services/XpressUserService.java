@@ -27,9 +27,8 @@ public class XpressUserService implements UserService, UserDetailsService {
         return new SecureUser(getUserByUsername(username));
     }
 
-    //TODO: remove hardcoded exception message
     private User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(()->new UsernameNotFoundException("invalid authentication credentials"));
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid Authentication Credentials"));
     }
 }

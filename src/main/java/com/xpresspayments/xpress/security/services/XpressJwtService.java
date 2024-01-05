@@ -28,7 +28,6 @@ public class XpressJwtService implements JwtService{
                 .withClaim("username", username)
                 .withExpiresAt(LocalDateTime.now().plusDays(jwtConfig.getJwtDuration())
                         .toInstant(UTC))
-                .withIssuer("xpress")
                 .sign(HMAC512(jwtConfig.getJwtSecret().getBytes()));
     }
 
