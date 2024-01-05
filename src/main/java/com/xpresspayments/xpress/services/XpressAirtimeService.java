@@ -1,6 +1,5 @@
 package com.xpresspayments.xpress.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.*;
 import com.xpresspayments.xpress.dtos.requests.AirtimeDetails;
 import com.xpresspayments.xpress.dtos.requests.PurchaseAirtimeRequest;
