@@ -24,7 +24,7 @@ public class XpressApplication {
 	public CommandLineRunner commandLineRunner(UserRepository userRepository, PasswordEncoder passwordEncoder){
 		return (args)->{
 			User user = new User();
-			user.setUsername("john@email.com");
+			user.setUsername("jerry@email.com");
 			user.setPassword(passwordEncoder.encode("password"));
 			user.setAuthorities(Set.of(Authority.USER));
 			userRepository.save(user);
