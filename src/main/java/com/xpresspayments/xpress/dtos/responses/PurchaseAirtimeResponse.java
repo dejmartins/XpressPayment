@@ -8,7 +8,9 @@ import lombok.Setter;
 @Setter
 @Builder
 public class PurchaseAirtimeResponse {
-
-    private boolean isSuccessful;
-    private Object data;
+    private String requestId;
+    private String referenceId;
+    private String responseCode;
+    private String responseMessage;
+    private String data;
 }

@@ -45,8 +45,11 @@ public class XpressAirtimeService implements AirtimeService {
 
         String responseBody = response.body().string();
 
+        if (!response.isSuccessful()) {
+            throw new IOException(responseBody);
+        }
+
         return PurchaseAirtimeResponse.builder()
-                .isSuccessful(response.isSuccessful())
                 .data(responseBody)
                 .build();
     }

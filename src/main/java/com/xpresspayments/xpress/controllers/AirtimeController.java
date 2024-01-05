@@ -2,6 +2,7 @@ package com.xpresspayments.xpress.controllers;
 
 import com.xpresspayments.xpress.dtos.requests.PurchaseAirtimeRequest;
 import com.xpresspayments.xpress.dtos.responses.PurchaseAirtimeResponse;
+import com.xpresspayments.xpress.dtos.responses.SuccessResponse;
 import com.xpresspayments.xpress.services.XpressAirtimeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,8 +22,10 @@ public class AirtimeController {
     private final XpressAirtimeService airtimeService;
 
     @PostMapping("/purchase")
-    public ResponseEntity<PurchaseAirtimeResponse> purchaseAirtime(@RequestBody PurchaseAirtimeRequest request) throws IOException {
-
-        return ResponseEntity.status(HttpStatus.OK).body(airtimeService.purchaseAirtime(request));
+    public ResponseEntity<?> purchaseAirtime(@RequestBody PurchaseAirtimeRequest request) throws IOException {
+        SuccessResponse response = SuccessResponse.builder()
+                .data(airtimeService.purchaseAirtime(request))
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
