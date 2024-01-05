@@ -29,6 +29,7 @@ public class XpressAirtimeService implements AirtimeService {
     public PurchaseAirtimeResponse purchaseAirtime(PurchaseAirtimeRequest purchaseAirtimeRequest) throws IOException {
         validatePurchaseRequest(purchaseAirtimeRequest);
 
+
         OkHttpClient client = new OkHttpClient();
 
         MediaType mediaType = MediaType.parse("application/json");
@@ -45,28 +46,28 @@ public class XpressAirtimeService implements AirtimeService {
                 .addHeader(CONTENT_TYPE_HEADER, "application/json")
                 .addHeader(AUTHORIZATION_HEADER, BEARER_TOKEN_PREFIX + xpressPublicKey)
                 .addHeader(PAYMENT_HASH_HEADER, PaymentHash)
-                .addHeader(CHANNEL_HEADER, "api")
+                .addHeader(CHANNEL_HEADER, "API")
                 .build();
 
         Response response = client.newCall(request).execute();
 
         String responseBody = response.body().string();
-        JSONObject jsonResponse = new JSONObject(responseBody);
+        JSONObject responseBodyAsJson = new JSONObject(responseBody);
 
         if (!response.isSuccessful()) {
 //          Throw an IOException with the error message from the response.
-            throw new IOException(jsonResponse.getString("responseMessage"));
+            throw new IOException(responseBodyAsJson.getString("responseMessage"));
         }
 
-        String dataValue = jsonResponse.get("data").toString();
+        String dataValue = responseBodyAsJson.get("data").toString();
 
         AirtimeDetails airtimeDetails = mapDataToAirtimeDetails(dataValue);
 
         return PurchaseAirtimeResponse.builder()
-                .referenceId(jsonResponse.getString("referenceId"))
-                .requestId(jsonResponse.getString("requestId"))
-                .responseCode(jsonResponse.getString("responseCode"))
-                .responseMessage(jsonResponse.getString("responseMessage"))
+                .referenceId(responseBodyAsJson.getString("referenceId"))
+                .requestId(responseBodyAsJson.getString("requestId"))
+                .responseCode(responseBodyAsJson.getString("responseCode"))
+                .responseMessage(responseBodyAsJson.getString("responseMessage"))
                 .data(airtimeDetails)
                 .build();
     }
@@ -134,7 +135,7 @@ public class XpressAirtimeService implements AirtimeService {
             return Hex.encodeHexString(mac.doFinal(data.getBytes()));
 
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            e.printStackTrace();
+
             throw new RuntimeException(e.getMessage());
 
         }
