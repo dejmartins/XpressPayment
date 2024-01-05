@@ -25,7 +25,7 @@ public class XpressAirtimeService implements AirtimeService {
 
         MediaType mediaType = MediaType.parse("application/json");
 
-        String jsonBody = String.format("{\"requestId\": %s, \"uniqueCode\": \"%s\", \"details\": {\"phoneNumber\": \"%s\", \"amount\": %s}}",
+        String jsonBody = String.format("{\"requestId\": %d, \"uniqueCode\": \"%s\", \"details\": {\"phoneNumber\": \"%s\", \"amount\": %f}}",
                 purchaseAirtimeRequest.getRequestId(),
                 purchaseAirtimeRequest.getUniqueCode(),
                 purchaseAirtimeRequest.getDetails().getPhoneNumber(),
@@ -64,7 +64,7 @@ public class XpressAirtimeService implements AirtimeService {
     }
 
     private void validatePurchaseRequest(PurchaseAirtimeRequest purchaseAirtimeRequest) {
-        if (purchaseAirtimeRequest.getRequestId() == null || purchaseAirtimeRequest.getRequestId().isEmpty()) {
+        if (purchaseAirtimeRequest.getRequestId() < 0) {
             throw new IllegalArgumentException("Invalid requestId");
         }
 
