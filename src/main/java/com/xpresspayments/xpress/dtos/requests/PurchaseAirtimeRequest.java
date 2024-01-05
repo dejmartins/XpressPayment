@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class PurchaseAirtimeRequest {
-    private int requestId;
+    private String requestId;
     private String uniqueCode;
     private AirtimeDetails details;
 }

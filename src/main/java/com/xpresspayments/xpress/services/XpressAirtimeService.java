@@ -3,12 +3,17 @@ package com.xpresspayments.xpress.services;
 import com.squareup.okhttp.*;
 import com.xpresspayments.xpress.dtos.requests.PurchaseAirtimeRequest;
 import com.xpresspayments.xpress.dtos.responses.PurchaseAirtimeResponse;
+import org.apache.commons.codec.binary.Hex;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 import static com.xpresspayments.xpress.utils.AppUtils.*;
 
@@ -17,6 +22,8 @@ public class XpressAirtimeService implements AirtimeService {
 
     @Value("${xpress.public.key}")
     private String xpressPublicKey;
+    @Value("${xpress.private.key}")
+    private String xpressPrivateKey;
 
     public PurchaseAirtimeResponse purchaseAirtime(PurchaseAirtimeRequest purchaseAirtimeRequest) throws IOException {
         validatePurchaseRequest(purchaseAirtimeRequest);
@@ -25,21 +32,19 @@ public class XpressAirtimeService implements AirtimeService {
 
         MediaType mediaType = MediaType.parse("application/json");
 
-        String jsonBody = String.format("{\"requestId\": %d, \"uniqueCode\": \"%s\", \"details\": {\"phoneNumber\": \"%s\", \"amount\": %f}}",
-                purchaseAirtimeRequest.getRequestId(),
-                purchaseAirtimeRequest.getUniqueCode(),
-                purchaseAirtimeRequest.getDetails().getPhoneNumber(),
-                purchaseAirtimeRequest.getDetails().getAmount());
+        JSONObject jsonPurchaseAirtimeRequest = getJsonPurchaseAirtimeRequest(purchaseAirtimeRequest);
 
-        RequestBody requestBody = RequestBody.create(mediaType, jsonBody);
+        RequestBody requestBody = RequestBody.create(mediaType, jsonPurchaseAirtimeRequest.toString());
+
+        String PaymentHash = calculateHMAC512(jsonPurchaseAirtimeRequest.toString(), xpressPrivateKey);
 
         Request request = new Request.Builder()
                 .url(AIRTIME_API_URL)
                 .post(requestBody)
                 .addHeader(CONTENT_TYPE_HEADER, "application/json")
                 .addHeader(AUTHORIZATION_HEADER, BEARER_TOKEN_PREFIX + xpressPublicKey)
-                .addHeader(PAYMENT_HASH_HEADER, "GENERATED_HMAC")
-                .addHeader(CHANNEL_HEADER, "API")
+                .addHeader(PAYMENT_HASH_HEADER, PaymentHash)
+                .addHeader(CHANNEL_HEADER, "api")
                 .build();
 
         Response response = client.newCall(request).execute();
@@ -47,7 +52,7 @@ public class XpressAirtimeService implements AirtimeService {
         String responseBody = response.body().string();
 
 //      Create a JSON object from the response body.
-        JSONObject jsonObject= new JSONObject(responseBody);
+        JSONObject jsonObject = new JSONObject(responseBody);
 
         if (!response.isSuccessful()) {
 //          Throw an IOException with the error message from the response.
@@ -59,12 +64,24 @@ public class XpressAirtimeService implements AirtimeService {
                 .requestId(jsonObject.getString("requestId"))
                 .responseCode(jsonObject.getString("responseCode"))
                 .responseMessage(jsonObject.getString("responseMessage"))
-                .data(jsonObject.getString("data"))
+                .data(jsonObject.get("data"))
                 .build();
     }
 
+    private static JSONObject getJsonPurchaseAirtimeRequest(PurchaseAirtimeRequest purchaseAirtimeRequest) {
+        JSONObject details = new JSONObject();
+        details.put("phoneNumber", purchaseAirtimeRequest.getDetails().getPhoneNumber());
+        details.put("amount", purchaseAirtimeRequest.getDetails().getAmount());
+
+        JSONObject jsonPurchaseAirtimeRequest = new JSONObject();
+        jsonPurchaseAirtimeRequest.put("requestId", purchaseAirtimeRequest.getRequestId());
+        jsonPurchaseAirtimeRequest.put("uniqueCode", purchaseAirtimeRequest.getUniqueCode());
+        jsonPurchaseAirtimeRequest.put("details", details);
+        return jsonPurchaseAirtimeRequest;
+    }
+
     private void validatePurchaseRequest(PurchaseAirtimeRequest purchaseAirtimeRequest) {
-        if (purchaseAirtimeRequest.getRequestId() < 0) {
+        if (purchaseAirtimeRequest.getRequestId() == null || purchaseAirtimeRequest.getRequestId().isEmpty()) {
             throw new IllegalArgumentException("Invalid requestId");
         }
 
@@ -81,7 +98,7 @@ public class XpressAirtimeService implements AirtimeService {
             throw new IllegalArgumentException("Invalid phoneNumber");
         }
 
-        if (purchaseAirtimeRequest.getDetails().getAmount() == null || purchaseAirtimeRequest.getDetails().getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+        if (purchaseAirtimeRequest.getDetails().getAmount() <= 0) {
             throw new IllegalArgumentException("Invalid amount");
         }
     }
@@ -89,4 +106,31 @@ public class XpressAirtimeService implements AirtimeService {
     private boolean isValidPhoneNumber(String phoneNumber) {
         return phoneNumber != null && phoneNumber.matches("\\d{10,}");
     }
+
+    public static String calculateHMAC512(String data, String key) {
+
+        System.out.println("Data -> " + data);
+
+        String HMAC_SHA512 = "HmacSHA512";
+
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_SHA512);
+
+        Mac mac = null;
+
+        try {
+
+            mac = Mac.getInstance(HMAC_SHA512);
+
+            mac.init(secretKeySpec);
+
+            return Hex.encodeHexString(mac.doFinal(data.getBytes()));
+
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+
+        }
+
+    }
+
 }

@@ -9,5 +9,5 @@ import java.math.BigDecimal;
 @Getter
 public class AirtimeDetails {
     private String phoneNumber;
-    private BigDecimal amount;
+    private int amount;
 }

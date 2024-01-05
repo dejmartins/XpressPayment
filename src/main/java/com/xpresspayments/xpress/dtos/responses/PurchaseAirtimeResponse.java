@@ -12,5 +12,5 @@ public class PurchaseAirtimeResponse {
     private String referenceId;
     private String responseCode;
     private String responseMessage;
-    private String data;
+    private Object data;
 }
