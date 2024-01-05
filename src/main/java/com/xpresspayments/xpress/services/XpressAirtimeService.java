@@ -1,6 +1,8 @@
 package com.xpresspayments.xpress.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.*;
+import com.xpresspayments.xpress.dtos.requests.AirtimeDetails;
 import com.xpresspayments.xpress.dtos.requests.PurchaseAirtimeRequest;
 import com.xpresspayments.xpress.dtos.responses.PurchaseAirtimeResponse;
 import org.apache.commons.codec.binary.Hex;
@@ -11,7 +13,6 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -50,21 +51,32 @@ public class XpressAirtimeService implements AirtimeService {
         Response response = client.newCall(request).execute();
 
         String responseBody = response.body().string();
-
-//      Create a JSON object from the response body.
-        JSONObject jsonObject = new JSONObject(responseBody);
+        JSONObject jsonResponse = new JSONObject(responseBody);
 
         if (!response.isSuccessful()) {
 //          Throw an IOException with the error message from the response.
-            throw new IOException(jsonObject.getString("responseMessage"));
+            throw new IOException(jsonResponse.getString("responseMessage"));
         }
 
+        String dataValue = jsonResponse.get("data").toString();
+
+        AirtimeDetails airtimeDetails = mapDataToAirtimeDetails(dataValue);
+
         return PurchaseAirtimeResponse.builder()
-                .referenceId(jsonObject.getString("referenceId"))
-                .requestId(jsonObject.getString("requestId"))
-                .responseCode(jsonObject.getString("responseCode"))
-                .responseMessage(jsonObject.getString("responseMessage"))
-                .data(jsonObject.get("data"))
+                .referenceId(jsonResponse.getString("referenceId"))
+                .requestId(jsonResponse.getString("requestId"))
+                .responseCode(jsonResponse.getString("responseCode"))
+                .responseMessage(jsonResponse.getString("responseMessage"))
+                .data(airtimeDetails)
+                .build();
+    }
+
+    private AirtimeDetails mapDataToAirtimeDetails(String dataValue) {
+        JSONObject airtimeDetailsJson = new JSONObject(dataValue);
+
+        return AirtimeDetails.builder()
+                .amount(airtimeDetailsJson.getInt("amount"))
+                .phoneNumber(airtimeDetailsJson.getString("phoneNumber"))
                 .build();
     }
 
