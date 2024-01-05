@@ -108,9 +108,6 @@ public class XpressAirtimeService implements AirtimeService {
     }
 
     public static String calculateHMAC512(String data, String key) {
-
-        System.out.println("Data -> " + data);
-
         String HMAC_SHA512 = "HmacSHA512";
 
         SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_SHA512);
@@ -118,7 +115,6 @@ public class XpressAirtimeService implements AirtimeService {
         Mac mac = null;
 
         try {
-
             mac = Mac.getInstance(HMAC_SHA512);
 
             mac.init(secretKeySpec);
