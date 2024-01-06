@@ -53,7 +53,6 @@ public class XpressAirtimeService implements AirtimeService {
         JSONObject responseBodyAsJson = new JSONObject(responseBody);
 
         if (!response.isSuccessful()) {
-//          Throw an IOException with the error message from the response.
             throw new IOException(responseBodyAsJson.getString("responseMessage"));
         }
 
