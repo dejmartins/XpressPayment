@@ -28,7 +28,7 @@ XpressPayment is a Spring Boot application designed to facilitate user authentic
 Ensure you have the following installed:
 
 - [Java](https://www.java.com/) (version 17)
-- [Your preferred IDE](#) (e.g., IntelliJ, Eclipse)
+- [Your preferred IDE](https://www.jetbrains.com/idea/) (e.g., IntelliJ, Eclipse)
 
 ### Installation
 
