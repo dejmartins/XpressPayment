@@ -2,6 +2,7 @@ package com.xpresspayments.xpress.dtos.requests;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
