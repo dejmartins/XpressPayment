@@ -108,6 +108,7 @@ public class XpressAirtimeService implements AirtimeService {
         jsonPurchaseAirtimeRequest.put("requestId", purchaseAirtimeRequest.getRequestId());
         jsonPurchaseAirtimeRequest.put("uniqueCode", purchaseAirtimeRequest.getUniqueCode());
         jsonPurchaseAirtimeRequest.put("details", details);
+
         return jsonPurchaseAirtimeRequest;
     }
 
