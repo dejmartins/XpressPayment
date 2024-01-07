@@ -28,28 +28,14 @@ public class XpressAirtimeService implements AirtimeService {
     public PurchaseAirtimeResponse purchaseAirtime(PurchaseAirtimeRequest purchaseAirtimeRequest) throws IOException {
         validatePurchaseRequest(purchaseAirtimeRequest);
 
-        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = createRequestBody(purchaseAirtimeRequest);
 
-        MediaType mediaType = MediaType.parse("application/json");
+        String paymentHash = getPaymentHash(purchaseAirtimeRequest);
 
-        JSONObject jsonPurchaseAirtimeRequest = getJsonPurchaseAirtimeRequest(purchaseAirtimeRequest);
-
-        RequestBody requestBody = RequestBody.create(mediaType, jsonPurchaseAirtimeRequest.toString());
-
-        String PaymentHash = calculateHMAC512(jsonPurchaseAirtimeRequest.toString(), xpressPrivateKey);
-
-        Request request = new Request.Builder()
-                .url(AIRTIME_API_URL)
-                .post(requestBody)
-                .addHeader(CONTENT_TYPE_HEADER, "application/json")
-                .addHeader(AUTHORIZATION_HEADER, BEARER_TOKEN_PREFIX + xpressPublicKey)
-                .addHeader(PAYMENT_HASH_HEADER, PaymentHash)
-                .addHeader(CHANNEL_HEADER, "API")
-                .build();
-
-        Response response = client.newCall(request).execute();
+        Response response = send(requestBody, paymentHash);
 
         String responseBody = response.body().string();
+
         JSONObject jsonResponseBody = new JSONObject(responseBody);
 
         if (!response.isSuccessful()) {
@@ -67,6 +53,41 @@ public class XpressAirtimeService implements AirtimeService {
                 .responseMessage(jsonResponseBody.getString("responseMessage"))
                 .data(airtimeDetails)
                 .build();
+    }
+
+    private Response send(RequestBody requestBody, String paymentHash) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(AIRTIME_API_URL)
+                .post(requestBody)
+                .addHeader(CONTENT_TYPE_HEADER, "application/json")
+                .addHeader(AUTHORIZATION_HEADER, BEARER_TOKEN_PREFIX + xpressPublicKey)
+                .addHeader(PAYMENT_HASH_HEADER, paymentHash)
+                .addHeader(CHANNEL_HEADER, "API")
+                .build();
+
+        Response response = client.newCall(request).execute();
+
+        return response;
+    }
+
+    private String getPaymentHash(PurchaseAirtimeRequest purchaseAirtimeRequest) {
+        JSONObject jsonPurchaseAirtimeRequest = getJsonPurchaseAirtimeRequest(purchaseAirtimeRequest);
+
+        String paymentHash = calculateHMAC512(jsonPurchaseAirtimeRequest.toString(), xpressPrivateKey);
+
+        return paymentHash;
+    }
+
+    private RequestBody createRequestBody(PurchaseAirtimeRequest purchaseAirtimeRequest) {
+        MediaType mediaType = MediaType.parse("application/json");
+
+        JSONObject jsonPurchaseAirtimeRequest = getJsonPurchaseAirtimeRequest(purchaseAirtimeRequest);
+
+        RequestBody requestBody = RequestBody.create(mediaType, jsonPurchaseAirtimeRequest.toString());
+
+        return requestBody;
     }
 
     private AirtimeDetails getAirtimeDetailsFrom(String dataValue) {
