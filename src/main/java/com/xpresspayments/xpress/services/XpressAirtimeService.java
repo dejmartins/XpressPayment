@@ -50,31 +50,31 @@ public class XpressAirtimeService implements AirtimeService {
         Response response = client.newCall(request).execute();
 
         String responseBody = response.body().string();
-        JSONObject responseBodyAsJson = new JSONObject(responseBody);
+        JSONObject jsonResponseBody = new JSONObject(responseBody);
 
         if (!response.isSuccessful()) {
-            throw new IOException(responseBodyAsJson.getString("responseMessage"));
+            throw new IOException(jsonResponseBody.getString("responseMessage"));
         }
 
-        String dataValue = responseBodyAsJson.get("data").toString();
+        String dataValue = jsonResponseBody.get("data").toString();
 
-        AirtimeDetails airtimeDetails = mapDataToAirtimeDetails(dataValue);
+        AirtimeDetails airtimeDetails = getAirtimeDetailsFrom(dataValue);
 
         return PurchaseAirtimeResponse.builder()
-                .referenceId(responseBodyAsJson.getString("referenceId"))
-                .requestId(responseBodyAsJson.getString("requestId"))
-                .responseCode(responseBodyAsJson.getString("responseCode"))
-                .responseMessage(responseBodyAsJson.getString("responseMessage"))
+                .referenceId(jsonResponseBody.getString("referenceId"))
+                .requestId(jsonResponseBody.getString("requestId"))
+                .responseCode(jsonResponseBody.getString("responseCode"))
+                .responseMessage(jsonResponseBody.getString("responseMessage"))
                 .data(airtimeDetails)
                 .build();
     }
 
-    private AirtimeDetails mapDataToAirtimeDetails(String dataValue) {
-        JSONObject airtimeDetailsJson = new JSONObject(dataValue);
+    private AirtimeDetails getAirtimeDetailsFrom(String dataValue) {
+        JSONObject jsonAirtimeDetails = new JSONObject(dataValue);
 
         return AirtimeDetails.builder()
-                .amount(airtimeDetailsJson.getInt("amount"))
-                .phoneNumber(airtimeDetailsJson.getString("phoneNumber"))
+                .amount(jsonAirtimeDetails.getInt("amount"))
+                .phoneNumber(jsonAirtimeDetails.getString("phoneNumber"))
                 .build();
     }
 
