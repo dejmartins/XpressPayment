@@ -85,4 +85,4 @@ Test the calculation of HMAC512 with a sample data and key.
 
 ## Documentation
 
-API documentation link can be found [here](https://documenter.getpostman.com/view/28493605/2s9YsJAXoV)
+API documentation can be found [here](https://documenter.getpostman.com/view/28493605/2s9YsJAXoV)
